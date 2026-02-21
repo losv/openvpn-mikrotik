@@ -1,0 +1,83 @@
+MIKROTIK OPENVPN CLIENT SETUP GUIDE
+====================================================================
+
+This guide explains how to connect your MikroTik router to the OpenVPN
+server created by this installer.
+
+--------------------------------------------------------------------
+PREREQUISITES
+--------------------------------------------------------------------
+You need 3 files from the server:
+  • ca.crt                 - Root certificate
+  • mikrotik-client.crt    - Your client certificate
+  • mikrotik-client.key    - Your private key
+
+These files are located in: ~/mikrotik-files/ on the server.
+
+--------------------------------------------------------------------
+METHOD 1: MANUAL CONFIGURATION (Recommended)
+--------------------------------------------------------------------
+
+STEP 1: Upload files to MikroTik
+--------------------------------
+Using Winbox:
+  1. Open Winbox and connect to your router
+  2. Go to: Files
+  3. Drag and drop all 3 files (ca.crt, mikrotik-client.crt, mikrotik-client.key)
+
+Using FTP/SCP:
+  scp ca.crt mikrotik-client.crt mikrotik-client.key admin@your-router-ip:/
+
+STEP 2: Import certificates
+---------------------------
+Open Terminal in Winbox or connect via SSH and run:
+
+  # Import root certificate
+  /certificate import file-name=ca.crt passphrase=""
+  
+  # Import client certificate
+  /certificate import file-name=mikrotik-client.crt passphrase=""
+  
+  # Import client key
+  /certificate import file-name=mikrotik-client.key passphrase=""
+
+  # Verify import
+  /certificate print
+
+You should see:
+  Flags: A - authority, T - trusted, K - private-key
+  #     NAME                    COMMON_NAME
+  0 A   ca.crt_0                Easy-RSA CA
+  1 K T mikrotik-client.crt_0   mikrotik-client
+
+STEP 3: Create OVPN client interface
+-------------------------------------
+Run the following command (replace YOUR_SERVER_IP with your actual VPS IP):
+
+  /interface ovpn-client add \
+    name=ovpn-to-vps \
+    connect-to=YOUR_SERVER_IP \
+    port=1194 \
+    mode=ip \
+    protocol=udp \
+    certificate=mikrotik-client.crt_0 \
+    auth=sha256 \
+    cipher=aes256-cbc \
+    add-default-route=no \
+    dont-add-pushed-routes=yes \
+    verify-server-certificate=yes \
+    use-peer-dns=no \
+    comment="OpenVPN to VPS"
+
+STEP 4: Enable and verify connection
+-------------------------------------
+  # Enable the interface
+  /interface ovpn-client enable ovpn-to-vps
+
+  # Check status
+  /interface ovpn-client monitor ovpn-to-vps once
+
+  # Check assigned IP address
+  /ip address print where interface=ovpn-to-vps
+
+You should see an IP address in the 10.8.0.x range (e.g., 10.8.0.2/24).
