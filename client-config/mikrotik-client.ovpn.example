@@ -1,0 +1,58 @@
+########################################################################
+# Example OpenVPN client configuration for MikroTik RouterOS
+# 
+# This is a TEMPLATE file. Replace the following placeholders:
+#   YOUR_SERVER_IP - with your actual VPS IP address
+#
+# To use: 
+#   1. Replace YOUR_SERVER_IP with your server's IP
+#   2. Upload this file to MikroTik via Winbox (Files)
+#   3. Import: PPP → OVPN Client → Import .ovpn
+#   4. Select this file
+########################################################################
+
+client
+dev tun
+proto udp
+remote YOUR_SERVER_IP 1194
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+remote-cert-tls server
+
+# Cipher and authentication (MikroTik compatible)
+cipher AES-256-CBC
+auth SHA256
+
+# Verbose logging (optional)
+verb 3
+
+# MikroTik specific options (will be applied on import)
+route-nopull
+;add-default-route no
+;use-peer-dns no
+
+# ---------- CERTIFICATES (EMBEDDED) ----------
+# These will be automatically extracted during import
+# Replace with your actual certificate content
+
+<ca>
+-----BEGIN CERTIFICATE-----
+Copy your ca.crt content here
+-----END CERTIFICATE-----
+</ca>
+
+<cert>
+-----BEGIN CERTIFICATE-----
+Copy your mikrotik-client.crt content here
+-----END CERTIFICATE-----
+</cert>
+
+<key>
+-----BEGIN PRIVATE KEY-----
+Copy your mikrotik-client.key content here
+-----END PRIVATE KEY-----
+</key>
+
+# Note: No tls-auth/tls-crypt - MikroTik doesn't support them
