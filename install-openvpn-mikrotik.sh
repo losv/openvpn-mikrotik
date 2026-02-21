@@ -101,7 +101,7 @@ sleep 5
 print_section "Step 1: Installing required packages"
 print_info "Updating package list and installing dependencies..."
 
-dnf install -y epel-release
+#dnf install -y epel-release
 dnf install -y openvpn easy-rsa firewalld curl
 
 # Check OpenVPN version
