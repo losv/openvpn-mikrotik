@@ -12,4 +12,4 @@ This project automates the deployment of an OpenVPN server on Rocky Linux 9.5, s
 ```bash
 git clone git@github.com:losv/openvpn-mikrotik.git
 cd openvpn-mikrotik
-sudo ./install-openvpn-mikrotik.sh
+sudo bash install-openvpn-mikrotik.sh
